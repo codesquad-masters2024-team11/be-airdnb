@@ -2,31 +2,30 @@ package com.yourbnb.review.model;
 
 import com.yourbnb.accommodation.model.Accommodation;
 import com.yourbnb.member.model.Member;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 
 @Entity
 @Getter
-@NoArgsConstructor // JPA 가 사용할 기본 생성자
-@RequiredArgsConstructor // @NotNull 로 표시된 필드를 초기화하는 생성자
+@NoArgsConstructor(access = AccessLevel.PROTECTED) // JPA 가 사용할 기본 생성자
 public class Review {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @NonNull
-    private String comment;
-
-    @NonNull
+    private String content;
     private Double rate;
-
     @ManyToOne
+    @JoinColumn(name = "member_id")
     private Member member;
-
     @ManyToOne
+    @JoinColumn(name = "accommodation_id", referencedColumnName = "id")
     private Accommodation accommodation;
 }

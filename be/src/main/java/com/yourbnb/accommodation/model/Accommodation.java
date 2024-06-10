@@ -4,67 +4,65 @@ import com.yourbnb.image.model.AccommodationImage;
 import com.yourbnb.member.model.Member;
 import com.yourbnb.reservation.model.Reservation;
 import com.yourbnb.review.model.Review;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import java.util.Set;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-
-import java.util.List;
 
 @Entity
 @Getter
-@NoArgsConstructor // JPA 가 사용할 기본 생성자
-@RequiredArgsConstructor // @NotNull 로 표시된 필드를 초기화하는 생성자
+@NoArgsConstructor(access = AccessLevel.PROTECTED) // JPA 가 사용할 기본 생성자
 public class Accommodation {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @NonNull
     private String name;
-
-    @NonNull
     private String phoneNumber;
-
-    @NonNull
     private String address;
-
-    @NonNull
     private String longitude;
-
-    @NonNull
     private String latitude;
-
-    @NonNull
     private Integer maxCapacity;
-
-    @NonNull
     private Integer cleaningFee;
-
-    @NonNull
     private Integer price;
-
-    @NonNull
     private String roomType;
 
-    @ManyToOne // accommodation 이 many
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "accommodation_type_id", referencedColumnName = "id")
     private AccommodationType accommodationType;
 
-    @OneToOne
-    private AccommodationImage accommodationImage;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "accommodation_image_id", referencedColumnName = "id")
+    private AccommodationImage accommodationImages;
 
-    @ManyToMany
-    private List<AccommodationAmenity> accommodationAmenity;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "accommodation_amenity",
+            joinColumns = @JoinColumn(name = "accommodation_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "amenity_id", referencedColumnName = "id")
+    )
+    private Set<AccommodationAmenity> accommodationAmenities;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "host_id", referencedColumnName = "member_id")
     private Member host;
 
-    @OneToMany
-    private List<Review> reviews;
+    @OneToMany(mappedBy = "accommodation", cascade = CascadeType.ALL, orphanRemoval = true) // 숙소가 삭제되면 리뷰도 삭제?
+    private Set<Review> reviews;
 
-    @ManyToOne
-    private Reservation reservation;
+    @OneToMany(mappedBy = "accommodation", cascade = CascadeType.ALL)
+    private Set<Reservation> reservations;
 
 }
