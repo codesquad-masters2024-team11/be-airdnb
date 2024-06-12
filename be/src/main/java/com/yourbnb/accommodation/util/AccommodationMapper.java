@@ -13,7 +13,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class AccommodationMapper {
-    public static AccommodationResponse toAccommodationResponse(Accommodation accommodation, Set<Amenity> amenities) {
+    public static AccommodationResponse toAccommodationResponse(Accommodation accommodation,
+                                                                Set<Amenity> amenities,
+                                                                String url) {
         return AccommodationResponse.builder()
                 .id(accommodation.getId())
                 .name(accommodation.getName())
@@ -27,7 +29,7 @@ public class AccommodationMapper {
                 .roomType(accommodation.getRoomType())
                 .hostId(accommodation.getHost().getMemberId())
                 .accommodationType(toAccommodationTypeDto(accommodation.getAccommodationType()))
-                .accommodationImage(toAccommodationImageDto(accommodation.getAccommodationImages()))
+                .accommodationImage(toAccommodationImageDto(accommodation.getAccommodationImages(), url))
                 .accommodationAmenities(toAccommodationAmenityDtos(amenities))
                 .build();
     }
@@ -36,8 +38,8 @@ public class AccommodationMapper {
         return new AccommodationTypeDto(type.getId(), type.getName());
     }
 
-    public static AccommodationImageDto toAccommodationImageDto(AccommodationImage image) {
-        return new AccommodationImageDto(image.getId(), image.getUploadName());
+    public static AccommodationImageDto toAccommodationImageDto(AccommodationImage image, String imageUrl) {
+        return new AccommodationImageDto(image.getId(), image.getUploadName(), imageUrl);
     }
 
     public static List<AccommodationAmenityDto> toAccommodationAmenityDtos(Set<Amenity> amenities) {
