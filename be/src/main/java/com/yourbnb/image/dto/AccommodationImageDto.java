@@ -10,4 +10,5 @@ import lombok.ToString;
 public class AccommodationImageDto {
     private final Long id;
     private final String uploadName;
+    private final String imageUrl;
 }
