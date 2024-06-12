@@ -10,7 +10,6 @@ import com.yourbnb.accommodation.util.AccommodationMapper;
 import com.yourbnb.image.util.S3Service;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -36,7 +35,7 @@ public class AccommodationService {
     public List<AccommodationResponse> getAccommodations() {
         List<AccommodationResponse> accommodationResponses = accommodationRepository.findAll().stream()
                 .map(this::mapAccommodationToResponse)
-                .collect(Collectors.toList());
+                .toList();
 
         log.info("총 {}개의 숙소 탐색 성공", accommodationResponses.size());
         return accommodationResponses;
