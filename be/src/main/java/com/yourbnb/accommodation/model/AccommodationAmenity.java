@@ -27,4 +27,9 @@ public class AccommodationAmenity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "amenity_id")
     private Amenity amenities;
+
+    public AccommodationAmenity(Accommodation accommodations, Amenity amenities) {
+        this.accommodations = accommodations;
+        this.amenities = amenities;
+    }
 }
