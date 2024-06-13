@@ -32,4 +32,17 @@ public class Reservation {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "accommodation_id", referencedColumnName = "id")
     private Accommodation accommodation;
+
+    private Reservation(LocalDate checkInDate, LocalDate checkOutDate, Integer visitorNumber, Integer totalPrice, Member member, Accommodation accommodation) {
+        this.checkInDate = checkInDate;
+        this.checkOutDate = checkOutDate;
+        this.visitorNumber = visitorNumber;
+        this.totalPrice = totalPrice;
+        this.member = member;
+        this.accommodation = accommodation;
+    }
+
+    public static Reservation of(LocalDate checkInDate, LocalDate checkOutDate, Integer visitorNumber, Integer totalPrice, Member member, Accommodation accommodation){
+        return new Reservation(checkInDate, checkOutDate, visitorNumber, totalPrice, member, accommodation);
+    }
 }
