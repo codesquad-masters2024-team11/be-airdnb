@@ -33,9 +33,9 @@ public class ReviewController {
         return ResponseEntity.ok(reviews);
     }
 
-    @PatchMapping("/accommodation/{accommodationId}/{id}")
-    public ResponseEntity<ReviewUpdateResponse> updateReview(@PathVariable Long accommodationId, @PathVariable Long id, @RequestBody ReviewUpdateRequest reviewUpdateRequest) {
-        Review updatedReview = reviewService.updateReview(accommodationId, id, reviewUpdateRequest);
+    @PatchMapping("/{reviewId}")
+    public ResponseEntity<ReviewUpdateResponse> updateReview(@PathVariable Long reviewId, @RequestBody ReviewUpdateRequest reviewUpdateRequest) {
+        Review updatedReview = reviewService.updateReview(reviewId, reviewUpdateRequest);
 
         ReviewUpdateResponse response = ReviewUpdateResponse.fromm(updatedReview);
 

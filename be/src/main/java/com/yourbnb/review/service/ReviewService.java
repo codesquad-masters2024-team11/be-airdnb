@@ -44,8 +44,8 @@ public class ReviewService {
     }
 
     @Transactional
-    public Review updateReview(Long accommodationId, Long id, ReviewUpdateRequest reviewUpdateRequest) {
-        Review review = reviewRepository.findByIdAndAccommodationId(id, accommodationId)
+    public Review updateReview(Long reviewId, ReviewUpdateRequest reviewUpdateRequest) {
+        Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(()->new RuntimeException("Review not found"));
 
         review.update(reviewUpdateRequest);
