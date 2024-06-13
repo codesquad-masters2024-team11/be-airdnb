@@ -2,6 +2,7 @@ package com.yourbnb.review.model;
 
 import com.yourbnb.accommodation.model.Accommodation;
 import com.yourbnb.member.model.Member;
+import com.yourbnb.review.model.dto.ReviewUpdateRequest;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -38,5 +39,12 @@ public class Review {
 
     public static Review of(String content, Double rate, Member member, Accommodation accommodation) {
         return new Review(content, rate, member, accommodation);
+    }
+
+    public Review update(ReviewUpdateRequest reviewUpdateRequest){
+        this.content = reviewUpdateRequest.content();
+        this.rate = reviewUpdateRequest.rate();
+
+        return this;
     }
 }
