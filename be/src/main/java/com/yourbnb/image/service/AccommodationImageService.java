@@ -1,6 +1,8 @@
 package com.yourbnb.image.service;
 
+import com.yourbnb.accommodation.exception.AccommodationImageNotFoundException;
 import com.yourbnb.image.dto.AccommodationImageDto;
+import com.yourbnb.image.exception.NullInvalidException;
 import com.yourbnb.image.model.AccommodationImage;
 import com.yourbnb.image.repository.AccommodationImageRepository;
 import com.yourbnb.image.util.ImageMapper;
@@ -41,6 +43,30 @@ public class AccommodationImageService {
         return ImageMapper.toAccommodationImageDto(savedImage, imageUrl);
     }
 
+    /**
+     * 데이터베이스에서 숙소 이미지를 조회하고 존재하면 반환한다.
+     *
+     * @param id 숙소 이미지 아이디
+     * @return 숙소 이미지 엔티티 객체
+     * @throws AccommodationImageNotFoundException 숙소 이미지를 찾을 수 없는 경우
+     */
+    @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
+    public AccommodationImage getAccommodationImageByIdOrThrow(Long id) {
+        return imageRepository.findById(id).orElseThrow(() -> new AccommodationImageNotFoundException(id));
+    }
+
+    /**
+     * 주어진 숙소 이미지와 URL을 포함한 AccommodationImageDto를 생성한다.
+     *
+     * @param accommodationImage 숙소 이미지 엔티티
+     * @return AccommodationImageDto 이미지 URL이 포함된 DTO 객체
+     */
+    @Transactional(readOnly = true)
+    public AccommodationImageDto getAccommodationImageDto(AccommodationImage accommodationImage) {
+        String url = s3Service.getImageUrl(accommodationImage.getUploadName());
+        return ImageMapper.toAccommodationImageDto(accommodationImage, url);
+    }
+
     private String generateUploadName(MultipartFile file) {
         String uuid = UUID.randomUUID().toString();
         String extension = extractExtension(file);
@@ -54,8 +80,7 @@ public class AccommodationImageService {
             return originalFilename.substring(index + 1);
         } catch (NullPointerException e) {
             log.error("이미지 이름이 유효하지 않습니다.");
-            // TODO: CustomException으로 변경하기
-            throw new RuntimeException();
+            throw new NullInvalidException();
         }
     }
 }
