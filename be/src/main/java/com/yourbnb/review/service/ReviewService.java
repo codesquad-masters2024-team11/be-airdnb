@@ -7,9 +7,11 @@ import com.yourbnb.member.repository.MemberRepository;
 import com.yourbnb.review.model.Review;
 import com.yourbnb.review.model.dto.ReviewCreationRequest;
 import com.yourbnb.review.model.dto.ReviewResponse;
+import com.yourbnb.review.model.dto.ReviewUpdateRequest;
 import com.yourbnb.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,5 +41,15 @@ public class ReviewService {
         return reviewRepository.findByAccommodationId(accommodationId).stream()
                 .map(ReviewResponse::from)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public Review updateReview(Long accommodationId, Long id, ReviewUpdateRequest reviewUpdateRequest) {
+        Review review = reviewRepository.findByIdAndAccommodationId(id, accommodationId)
+                .orElseThrow(()->new RuntimeException("Review not found"));
+
+        review.update(reviewUpdateRequest);
+
+        return reviewRepository.save(review);
     }
 }

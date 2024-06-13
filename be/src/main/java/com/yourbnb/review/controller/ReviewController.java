@@ -1,9 +1,7 @@
 package com.yourbnb.review.controller;
 
 import com.yourbnb.review.model.Review;
-import com.yourbnb.review.model.dto.ReviewCreationRequest;
-import com.yourbnb.review.model.dto.ReviewCreationResponse;
-import com.yourbnb.review.model.dto.ReviewResponse;
+import com.yourbnb.review.model.dto.*;
 import com.yourbnb.review.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,5 +31,14 @@ public class ReviewController {
     public ResponseEntity<List<ReviewResponse>> getReviewsByAccommodationId(@PathVariable Long accommodationId){
         List<ReviewResponse> reviews = reviewService.getReviewsByAccommodationId(accommodationId);
         return ResponseEntity.ok(reviews);
+    }
+
+    @PatchMapping("/accommodation/{accommodationId}/{id}")
+    public ResponseEntity<ReviewUpdateResponse> updateReview(@PathVariable Long accommodationId, @PathVariable Long id, @RequestBody ReviewUpdateRequest reviewUpdateRequest) {
+        Review updatedReview = reviewService.updateReview(accommodationId, id, reviewUpdateRequest);
+
+        ReviewUpdateResponse response = ReviewUpdateResponse.fromm(updatedReview);
+
+        return ResponseEntity.ok(response);
     }
 }
