@@ -31,13 +31,13 @@ public class ReviewService {
         Accommodation accommodation = accommodationRepository.findById(reviewCreationRequest.accommodationId())
                 .orElseThrow(() -> new RuntimeException("Accommodation not found"));
 
-        Review review = reviewCreationRequest.toEntity(member,accommodation);
+        Review review = reviewCreationRequest.toEntity(member, accommodation);
 
         // 2) 저장 및 반환
         return reviewRepository.save(review);
     }
 
-    public List<ReviewResponse> getReviewsByAccommodationId(Long accommodationId){
+    public List<ReviewResponse> getReviewsByAccommodationId(Long accommodationId) {
         return reviewRepository.findByAccommodationId(accommodationId).stream()
                 .map(ReviewResponse::from)
                 .collect(Collectors.toList());
@@ -46,10 +46,17 @@ public class ReviewService {
     @Transactional
     public Review updateReview(Long reviewId, ReviewUpdateRequest reviewUpdateRequest) {
         Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(()->new RuntimeException("Review not found"));
+                .orElseThrow(() -> new RuntimeException("Review not found"));
 
         review.update(reviewUpdateRequest);
 
         return reviewRepository.save(review);
+    }
+
+    public void deleteReview(Long reviewId) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new RuntimeException("Review not found"));
+
+        reviewRepository.delete(review);
     }
 }
