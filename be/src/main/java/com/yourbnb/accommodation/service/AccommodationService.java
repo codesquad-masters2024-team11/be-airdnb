@@ -1,17 +1,19 @@
 package com.yourbnb.accommodation.service;
 
 import com.yourbnb.accommodation.model.Accommodation;
+import com.yourbnb.accommodation.model.AccommodationType;
 import com.yourbnb.accommodation.model.Amenity;
+import com.yourbnb.accommodation.model.dto.AccommodationCreateDto;
 import com.yourbnb.accommodation.model.dto.AccommodationResponse;
-import com.yourbnb.accommodation.repository.AccommodationAmenityRepository;
 import com.yourbnb.accommodation.repository.AccommodationRepository;
-import com.yourbnb.accommodation.repository.AmenityRepository;
 import com.yourbnb.accommodation.util.AccommodationMapper;
-import com.yourbnb.image.util.S3Service;
+import com.yourbnb.image.dto.AccommodationImageDto;
+import com.yourbnb.image.model.AccommodationImage;
+import com.yourbnb.image.service.AccommodationImageService;
+import com.yourbnb.member.model.Member;
+import com.yourbnb.member.service.MemberService;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,11 +24,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @RequiredArgsConstructor
 public class AccommodationService {
-    private final S3Service s3Service;
     private final AccommodationRepository accommodationRepository;
-    private final AmenityRepository amenityRepository;
-    private final AccommodationAmenityRepository accommodationAmenityRepository;
-
+    private final AccommodationTypeService typeService;
+    private final AccommodationImageService imageService;
+    private final AccommodationAmenityService accommodationAmenityService;
+    private final MemberService memberService;
 
     /**
      * 데이터베이스에 저장되어 있는 전체 숙소 리스트를 반환한다.
@@ -43,18 +45,33 @@ public class AccommodationService {
         return accommodationResponses;
     }
 
-    private AccommodationResponse mapAccommodationToResponse(Accommodation accommodation) {
-        Set<Long> amenityIds = getAmenityIds(accommodation);
-        Set<Amenity> amenities = amenityRepository.findAllByIdIsIn(amenityIds);
-        String url = s3Service.getImageUrl(accommodation.getAccommodationImages().getUploadName());
-        return AccommodationMapper.toAccommodationResponse(accommodation, amenities, url);
+    /**
+     * 숙소를 데이터베이스에 저장한다.
+     *
+     * @param createDto               생성할 숙소 정보를 담은 DTO
+     * @param accommodationAmenityIds 생성할 숙소의 어매니티들의 아이디 리스트
+     * @return 생성된 숙소 응답 DTO
+     */
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public AccommodationResponse createAccommodation(AccommodationCreateDto createDto,
+                                                     Set<Long> accommodationAmenityIds) {
+        Member member = memberService.getMemberByIdOrThrow(createDto.getHostId());
+        AccommodationType type = typeService.getAccommodationTypeByIdOrThrow(createDto.getAccommodationTypeId());
+        AccommodationImage image = imageService.getAccommodationImageByIdOrThrow(createDto.getAccommodationImageId());
+        List<Amenity> amenities = accommodationAmenityService.getAmenitiesByIdOrThrow(accommodationAmenityIds);
+
+        Accommodation accommodation = AccommodationMapper.toAccommodation(createDto, member, type, image);
+        accommodationRepository.save(accommodation);
+        accommodationAmenityService.saveAccommodationAmenity(accommodation, amenities);
+
+        log.info("숙소 생성 성공 - {}", accommodation.getId());
+        return mapAccommodationToResponse(accommodation); // 생성된 숙소를 응답 DTO로 매핑하여 반환
     }
 
-    private Set<Long> getAmenityIds(Accommodation accommodation) {
-        return accommodationAmenityRepository.findAllByAccommodations_Id(accommodation.getId())
-                .stream()
-                .filter(mapping -> Objects.nonNull(mapping.getAmenities())) // Amenity가 null이 아닌 경우에만 필터링
-                .map(mapping -> mapping.getAmenities().getId())
-                .collect(Collectors.toUnmodifiableSet());
+    private AccommodationResponse mapAccommodationToResponse(Accommodation accommodation) {
+        Set<Long> amenityIds = accommodationAmenityService.findAmenityIdsByAccommodationId(accommodation.getId());
+        Set<Amenity> amenities = accommodationAmenityService.findAllByIdIsIn(amenityIds);
+        AccommodationImageDto imageDto = imageService.getAccommodationImageDto(accommodation.getAccommodationImages());
+        return AccommodationMapper.toAccommodationResponse(accommodation, amenities, imageDto);
     }
 }

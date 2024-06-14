@@ -7,7 +7,9 @@ import com.yourbnb.accommodation.model.Amenity;
 import com.yourbnb.accommodation.repository.AccommodationAmenityRepository;
 import com.yourbnb.accommodation.repository.AmenityRepository;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -56,8 +58,12 @@ public class AccommodationAmenityService {
      * @param id 숙소의 ID
      * @return 숙소에 연결된 어매니티들의 ID 리스트
      */
-    public Set<Long> findAmenitiesByAccommodationId(Long id) {
-        return accommodationAmenityRepository.findAmenitiesByAccommodationId(id);
+    public Set<Long> findAmenityIdsByAccommodationId(Long id) {
+        return accommodationAmenityRepository.findAllByAccommodations_Id(id)
+                .stream()
+                .filter(mapping -> Objects.nonNull(mapping.getAmenities())) // Amenity가 null이 아닌 경우에만 필터링
+                .map(mapping -> mapping.getAmenities().getId())
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     /**
