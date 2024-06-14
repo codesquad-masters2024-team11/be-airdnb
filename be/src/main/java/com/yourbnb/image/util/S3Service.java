@@ -37,12 +37,13 @@ public class S3Service {
         metadata.setContentType(file.getContentType());
         metadata.setContentLength(file.getSize());
 
-        PutObjectRequest objectRequest = new PutObjectRequest(bucket, uploadName, file.getInputStream(), metadata)
+        String uploadFullName = fileDir + uploadName;
+        PutObjectRequest objectRequest = new PutObjectRequest(bucket, uploadFullName, file.getInputStream(), metadata)
                 .withCannedAcl(CannedAccessControlList.PublicRead); // 파일의 ACL(Access Control List)을 PublicRead로 설정
         amazonS3Client.putObject(objectRequest);
 
-        log.info("S3에 이미지 업로드 성공 - {}", uploadName);
-        return amazonS3Client.getUrl(bucket, uploadName).toString();
+        log.info("S3에 이미지 업로드 성공 - {}", uploadFullName);
+        return amazonS3Client.getUrl(bucket, uploadFullName).toString();
     }
 
     /**
