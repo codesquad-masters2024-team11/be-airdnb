@@ -35,12 +35,11 @@ public class AccommodationImageService {
     public AccommodationImageDto uploadAccommodationImage(MultipartFile file) throws IOException {
         String uploadName = generateUploadName(file);
 
-        log.error(uploadName);
-        AccommodationImage savedImage = imageRepository.save(new AccommodationImage(uploadName));
         String imageUrl = s3Service.uploadImage(file, uploadName);
+        AccommodationImage savedImage = imageRepository.save(new AccommodationImage(uploadName, imageUrl));
 
         log.info("숙소 이미지 저장 성공");
-        return ImageMapper.toAccommodationImageDto(savedImage, imageUrl);
+        return ImageMapper.toAccommodationImageDto(savedImage);
     }
 
     /**
@@ -53,18 +52,6 @@ public class AccommodationImageService {
     @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
     public AccommodationImage getAccommodationImageByIdOrThrow(Long id) {
         return imageRepository.findById(id).orElseThrow(() -> new AccommodationImageNotFoundException(id));
-    }
-
-    /**
-     * 주어진 숙소 이미지와 URL을 포함한 AccommodationImageDto를 생성한다.
-     *
-     * @param accommodationImage 숙소 이미지 엔티티
-     * @return AccommodationImageDto 이미지 URL이 포함된 DTO 객체
-     */
-    @Transactional(readOnly = true)
-    public AccommodationImageDto getAccommodationImageDto(AccommodationImage accommodationImage) {
-        String url = s3Service.getImageUrl(accommodationImage.getUploadName());
-        return ImageMapper.toAccommodationImageDto(accommodationImage, url);
     }
 
     private String generateUploadName(MultipartFile file) {

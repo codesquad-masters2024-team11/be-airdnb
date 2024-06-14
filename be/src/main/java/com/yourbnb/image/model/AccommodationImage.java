@@ -17,8 +17,10 @@ public class AccommodationImage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String uploadName;
+    private String imageUrl;
 
-    public AccommodationImage(String uploadName) {
+    public AccommodationImage(String uploadName, String imageUrl) {
         this.uploadName = uploadName;
+        this.imageUrl = imageUrl;
     }
 }

@@ -10,6 +10,7 @@ import com.yourbnb.accommodation.util.AccommodationMapper;
 import com.yourbnb.image.dto.AccommodationImageDto;
 import com.yourbnb.image.model.AccommodationImage;
 import com.yourbnb.image.service.AccommodationImageService;
+import com.yourbnb.image.util.ImageMapper;
 import com.yourbnb.member.model.Member;
 import com.yourbnb.member.service.MemberService;
 import java.util.List;
@@ -71,7 +72,7 @@ public class AccommodationService {
     private AccommodationResponse mapAccommodationToResponse(Accommodation accommodation) {
         Set<Long> amenityIds = accommodationAmenityService.findAmenityIdsByAccommodationId(accommodation.getId());
         Set<Amenity> amenities = accommodationAmenityService.findAllByIdIsIn(amenityIds);
-        AccommodationImageDto imageDto = imageService.getAccommodationImageDto(accommodation.getAccommodationImages());
+        AccommodationImageDto imageDto = ImageMapper.toAccommodationImageDto(accommodation.getAccommodationImages());
         return AccommodationMapper.toAccommodationResponse(accommodation, amenities, imageDto);
     }
 }
