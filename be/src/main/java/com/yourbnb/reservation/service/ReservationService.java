@@ -15,6 +15,9 @@ import java.time.temporal.ChronoUnit;
 @Service
 @RequiredArgsConstructor
 public class ReservationService {
+
+    private static final double TAX = 1.1;
+
     private final ReservationRepository reservationRepository;
     private final MemberRepository memberRepository;
     private final AccommodationRepository accommodationRepository;
@@ -26,9 +29,9 @@ public class ReservationService {
         Accommodation accommodation = accommodationRepository.findById(reservationCreationRequest.accommodationId())
                 .orElseThrow(() -> new RuntimeException("Accommodation not found"));
 
-        // TODO : 총 금액에 tax 랑 cleaning fee 더하기!?
+        // TODO : 총 금액에 tax 랑 cleaning fee 더하기!? + tax 10% , cleaning fee
         long daysBetween = ChronoUnit.DAYS.between(reservationCreationRequest.checkInDate(), reservationCreationRequest.checkOutDate());
-        int totalPrice = (int) (daysBetween * accommodation.getPrice());
+        int totalPrice = (int) (daysBetween * accommodation.getPrice() * TAX + accommodation.getCleaningFee());
 
         Reservation reservation = reservationCreationRequest.toEntity(member, accommodation, totalPrice);
 

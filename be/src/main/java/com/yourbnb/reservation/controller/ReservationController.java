@@ -25,4 +25,8 @@ public class ReservationController {
 
         return ResponseEntity.ok(response);
     }
+
+    // TODO : reservationId 개인
+    // TODO : memberId 에 따른 List
+    // TODO : accommodationId 에 따른 List
 }
