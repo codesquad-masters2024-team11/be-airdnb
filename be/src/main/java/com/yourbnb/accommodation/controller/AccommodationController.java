@@ -5,9 +5,11 @@ import com.yourbnb.accommodation.model.dto.AccommodationCreateRequest;
 import com.yourbnb.accommodation.model.dto.AccommodationResponse;
 import com.yourbnb.accommodation.service.AccommodationService;
 import com.yourbnb.accommodation.util.AccommodationMapper;
+import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +23,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RestController
 @RequestMapping("/api/accommodations")
 @RequiredArgsConstructor
+@Slf4j
 public class AccommodationController {
     private final AccommodationService accommodationService;
 
@@ -31,7 +34,8 @@ public class AccommodationController {
     }
 
     @PostMapping
-    public ResponseEntity<AccommodationResponse> createAccommodations(@RequestBody AccommodationCreateRequest request) {
+    public ResponseEntity<AccommodationResponse> createAccommodations(
+            @Valid @RequestBody AccommodationCreateRequest request) {
         AccommodationCreateDto createDto = AccommodationMapper.toAccommodationCreateDto(request);
         AccommodationResponse accommodation = accommodationService.createAccommodation(createDto,
                 request.getAccommodationAmenityIds());

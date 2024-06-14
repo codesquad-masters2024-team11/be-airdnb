@@ -6,17 +6,17 @@ import java.io.IOException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationExceptions(MethodArgumentNotValidException e) {
         FieldError fieldError = e.getBindingResult().getFieldError();
-        String errorCode = String.format("BINDING_ERROR_%s", fieldError.getField());
+        String errorCode = String.format("BINDING_ERROR_%s", fieldError.getField()).toUpperCase();
         String errorMsg = fieldError.getDefaultMessage();
         return new ErrorResponse(errorCode, errorMsg);
     }

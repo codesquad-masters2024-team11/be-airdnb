@@ -1,6 +1,7 @@
 package com.yourbnb.accommodation.model.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.util.Set;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -20,19 +21,19 @@ public class AccommodationCreateRequest {
     private final String longitude;
     @NotBlank
     private final String latitude;
-    @NotBlank
+    @NotNull
     private final Integer maxCapacity;
-    @NotBlank
+    @NotNull
     private final Integer cleaningFee;
-    @NotBlank
+    @NotNull
     private final Integer price;
     @NotBlank
     private final String roomType;
     @NotBlank
     private final String hostId;
-    @NotBlank
+    @NotNull
     private final Long accommodationTypeId;
-    @NotBlank
+    @NotNull
     private final Long accommodationImageId;
     private final Set<Long> accommodationAmenityIds;
 }
