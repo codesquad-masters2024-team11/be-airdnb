@@ -12,17 +12,22 @@ public class ReservationCreationResponse {
     private final Integer totalPrice;
     private final String message;
 
-    public ReservationCreationResponse(Reservation reservation) {
-        this.id = reservation.getId();
-        this.totalPrice = reservation.getTotalPrice();
-        this.message = generateSuccessMessage(reservation);
+    private ReservationCreationResponse(Long id, Integer totalPrice, String message) {
+        this.id = id;
+        this.totalPrice = totalPrice;
+        this.message = message;
     }
 
-    private String generateSuccessMessage(Reservation reservation) {
-        return String.format(CREATE_SUCCESS_MESSAGE_FORMAT, reservation.getId(), reservation.getTotalPrice());
-    }
 
     public static ReservationCreationResponse from(Reservation reservation) {
-        return new ReservationCreationResponse(reservation);
+        Long id = reservation.getId();
+        Integer totalPrice = reservation.getTotalPrice();
+        String message = generateSuccessMessage(reservation);
+        return new ReservationCreationResponse(id, totalPrice, message);
+    }
+
+
+    private static String generateSuccessMessage(Reservation reservation) {
+        return String.format(CREATE_SUCCESS_MESSAGE_FORMAT, reservation.getId(), reservation.getTotalPrice());
     }
 }
