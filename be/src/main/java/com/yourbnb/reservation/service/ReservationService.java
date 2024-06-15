@@ -6,6 +6,7 @@ import com.yourbnb.member.model.Member;
 import com.yourbnb.member.repository.MemberRepository;
 import com.yourbnb.reservation.model.Reservation;
 import com.yourbnb.reservation.model.dto.ReservationCreationRequest;
+import com.yourbnb.reservation.model.dto.ReservationResponse;
 import com.yourbnb.reservation.repository.ReservationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -42,15 +43,16 @@ public class ReservationService {
         return reservationRepository.save(reservation);
     }
 
-    public Optional<Reservation> getReservationById(Long reservationId) {
-        return reservationRepository.findById(reservationId);
+    public Optional<ReservationResponse> getReservationById(Long reservationId) {
+        return reservationRepository.findById(reservationId)
+                .map(ReservationResponse::from);
     }
 
-    public List<Reservation> getReservationsByMemberId(String memberId) {
-        return reservationRepository.findByMemberId(memberId);
-    }
-
-    public List<Reservation> getReservationsByAccommodationId(Long accommodationId) {
-        return reservationRepository.findByAccommodationId(accommodationId);
-    }
+//    public List<ReservationResponse> getReservationsByMemberId(String memberId) {
+//        return reservationRepository.findByMemberId(memberId);
+//    }
+//
+//    public List<ReservationResponse> getReservationsByAccommodationId(Long accommodationId) {
+//        return reservationRepository.findByAccommodationId(accommodationId);
+//    }
 }
