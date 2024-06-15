@@ -3,13 +3,13 @@ package com.yourbnb.reservation.controller;
 import com.yourbnb.reservation.model.Reservation;
 import com.yourbnb.reservation.model.dto.ReservationCreationRequest;
 import com.yourbnb.reservation.model.dto.ReservationCreationResponse;
+import com.yourbnb.reservation.model.dto.ReservationResponse;
 import com.yourbnb.reservation.service.ReservationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,6 +27,14 @@ public class ReservationController {
     }
 
     // TODO : reservationId 개인
+    @GetMapping("/{reservationId}")
+    public ResponseEntity<ReservationResponse> getReservationById(@PathVariable Long reservationId) {
+        Optional<ReservationResponse> reservation = reservationService.getReservationById(reservationId);
+
+        return reservation.map(ResponseEntity::ok)
+                .orElseGet(()->ResponseEntity.notFound().build());
+    }
+
     // TODO : memberId 에 따른 List
     // TODO : accommodationId 에 따른 List
 }
