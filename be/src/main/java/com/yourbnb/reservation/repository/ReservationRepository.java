@@ -1,14 +1,14 @@
 package com.yourbnb.reservation.repository;
 
 import com.yourbnb.reservation.model.Reservation;
-import com.yourbnb.review.model.Review;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
+@Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
-    Optional<Reservation> findById(Long reservationId);
     List<Reservation> findByAccommodationId(Long accommodationId);
-    List<Reservation> findByMemberId(String memberId);
+    // Spring Data JPA는 기본적으로 'id'라는 이름을 기대, 하지만 Member 엔티티의 필드 이름은 memberId.
+    List<Reservation> findByMember_MemberId(String memberId);
 }
