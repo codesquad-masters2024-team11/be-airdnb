@@ -46,5 +46,12 @@ public class ReservationController {
         return ResponseEntity.ok(reservations);
     }
 
+
     // TODO : accommodationId 에 따른 List
+    @GetMapping("/accommodation/{accommodationId}")
+    public ResponseEntity<List<ReservationResponse>> getReservationsByAccommodationId(@PathVariable Long accommodationId) {
+        List<ReservationResponse> reservations = reservationService.getReservationsByAccommodationId(accommodationId);
+
+        return ResponseEntity.ok(reservations);
+    }
 }
