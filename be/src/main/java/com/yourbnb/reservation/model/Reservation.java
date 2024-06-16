@@ -2,6 +2,7 @@ package com.yourbnb.reservation.model;
 
 import com.yourbnb.accommodation.model.Accommodation;
 import com.yourbnb.member.model.Member;
+import com.yourbnb.reservation.model.dto.ReservationUpdateRequest;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -10,6 +11,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import java.time.LocalDate;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -44,5 +47,14 @@ public class Reservation {
 
     public static Reservation of(LocalDate checkInDate, LocalDate checkOutDate, Integer visitorNumber, Integer totalPrice, Member member, Accommodation accommodation){
         return new Reservation(checkInDate, checkOutDate, visitorNumber, totalPrice, member, accommodation);
+    }
+
+    public Reservation update(ReservationUpdateRequest reservationUpdateRequest, int totalPrice){
+        this.checkInDate = reservationUpdateRequest.checkInDate();
+        this.checkOutDate = reservationUpdateRequest.checkOutDate();
+        this.visitorNumber = reservationUpdateRequest.visitorNumber();
+        this.totalPrice = totalPrice;
+
+        return this;
     }
 }
