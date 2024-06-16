@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -26,15 +27,24 @@ public class ReservationController {
         return ResponseEntity.ok(response);
     }
 
+
     // TODO : reservationId 개인
     @GetMapping("/{reservationId}")
     public ResponseEntity<ReservationResponse> getReservationById(@PathVariable Long reservationId) {
         Optional<ReservationResponse> reservation = reservationService.getReservationById(reservationId);
 
         return reservation.map(ResponseEntity::ok)
-                .orElseGet(()->ResponseEntity.notFound().build());
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+
     // TODO : memberId 에 따른 List
+    @GetMapping("/member/{memberId}")
+    public ResponseEntity<List<ReservationResponse>> getReservationsByMemberId(@PathVariable String memberId) {
+        List<ReservationResponse> reservations = reservationService.getReservationsByMemberId(memberId);
+
+        return ResponseEntity.ok(reservations);
+    }
+
     // TODO : accommodationId 에 따른 List
 }
