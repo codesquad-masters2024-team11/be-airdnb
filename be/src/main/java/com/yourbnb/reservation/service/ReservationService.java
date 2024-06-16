@@ -6,14 +6,17 @@ import com.yourbnb.accommodation.repository.AccommodationRepository;
 import com.yourbnb.member.exception.MemberNotFoundException;
 import com.yourbnb.member.model.Member;
 import com.yourbnb.member.repository.MemberRepository;
+import com.yourbnb.reservation.exception.ReservationNotFoundException;
 import com.yourbnb.reservation.model.Reservation;
 import com.yourbnb.reservation.model.dto.ReservationCreationRequest;
 import com.yourbnb.reservation.model.dto.ReservationResponse;
+import com.yourbnb.reservation.model.dto.ReservationUpdateRequest;
 import com.yourbnb.reservation.repository.ReservationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
@@ -37,9 +40,7 @@ public class ReservationService {
         Accommodation accommodation = accommodationRepository.findById(reservationCreationRequest.accommodationId())
                 .orElseThrow(() -> new AccommodationNotFoundException(reservationCreationRequest.accommodationId()));
 
-        // TODO : 총 금액에 tax 랑 cleaning fee 더하기!? + tax 10% , cleaning fee
-        long daysBetween = ChronoUnit.DAYS.between(reservationCreationRequest.checkInDate(), reservationCreationRequest.checkOutDate());
-        int totalPrice = (int) (daysBetween * accommodation.getPrice() * TAX + accommodation.getCleaningFee());
+        int totalPrice = calculateTotalPrice(reservationCreationRequest.checkInDate(), reservationCreationRequest.checkOutDate(), accommodation);
 
         Reservation reservation = reservationCreationRequest.toEntity(member, accommodation, totalPrice);
 
@@ -65,5 +66,31 @@ public class ReservationService {
         return reservationRepository.findByAccommodationId(accommodationId).stream()
                 .map(ReservationResponse::from)
                 .collect(Collectors.toList());
+    }
+
+
+    @Transactional
+    public Reservation updateReservation(Long reservationId, ReservationUpdateRequest reservationUpdateRequest) {
+        // 1) 업데이트할 예약건 찾기
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(()-> new ReservationNotFoundException(reservationId));
+
+        // 2) 관련 숙소 정보 조회하기
+        Accommodation accommodation = accommodationRepository.findById(reservation.getAccommodation().getId())
+                .orElseThrow(()-> new AccommodationNotFoundException(reservation.getAccommodation().getId()));
+
+        int totalPrice = calculateTotalPrice(reservationUpdateRequest.checkInDate(), reservationUpdateRequest.checkOutDate(), accommodation);
+
+        // 2) 업데이트
+        reservation.update(reservationUpdateRequest, totalPrice);
+
+        // 3) 반환
+        return reservationRepository.save(reservation);
+    }
+
+
+    private int calculateTotalPrice(LocalDate checkInDate, LocalDate checkOutDate, Accommodation accommodation) {
+        long daysBetween = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
+        return (int) (daysBetween * accommodation.getPrice() * TAX + accommodation.getCleaningFee());
     }
 }
