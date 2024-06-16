@@ -73,11 +73,11 @@ public class ReservationService {
     public Reservation updateReservation(Long reservationId, ReservationUpdateRequest reservationUpdateRequest) {
         // 1) 업데이트할 예약건 찾기
         Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(()-> new ReservationNotFoundException(reservationId));
+                .orElseThrow(() -> new ReservationNotFoundException(reservationId));
 
         // 2) 관련 숙소 정보 조회하기
         Accommodation accommodation = accommodationRepository.findById(reservation.getAccommodation().getId())
-                .orElseThrow(()-> new AccommodationNotFoundException(reservation.getAccommodation().getId()));
+                .orElseThrow(() -> new AccommodationNotFoundException(reservation.getAccommodation().getId()));
 
         int totalPrice = calculateTotalPrice(reservationUpdateRequest.checkInDate(), reservationUpdateRequest.checkOutDate(), accommodation);
 
@@ -86,6 +86,14 @@ public class ReservationService {
 
         // 3) 반환
         return reservationRepository.save(reservation);
+    }
+
+
+    public void deleteReservation(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new ReservationNotFoundException(reservationId));
+
+        reservationRepository.delete(reservation);
     }
 
 
