@@ -1,7 +1,9 @@
 package com.yourbnb.reservation.service;
 
+import com.yourbnb.accommodation.exception.AccommodationNotFoundException;
 import com.yourbnb.accommodation.model.Accommodation;
 import com.yourbnb.accommodation.repository.AccommodationRepository;
+import com.yourbnb.member.exception.MemberNotFoundException;
 import com.yourbnb.member.model.Member;
 import com.yourbnb.member.repository.MemberRepository;
 import com.yourbnb.reservation.model.Reservation;
@@ -30,10 +32,10 @@ public class ReservationService {
     @Transactional
     public Reservation createReservation(ReservationCreationRequest reservationCreationRequest) {
         Member member = memberRepository.findById(reservationCreationRequest.memberId())
-                .orElseThrow(() -> new RuntimeException("Member not found"));
+                .orElseThrow(() -> new MemberNotFoundException(reservationCreationRequest.memberId()));
 
         Accommodation accommodation = accommodationRepository.findById(reservationCreationRequest.accommodationId())
-                .orElseThrow(() -> new RuntimeException("Accommodation not found"));
+                .orElseThrow(() -> new AccommodationNotFoundException(reservationCreationRequest.accommodationId()));
 
         // TODO : 총 금액에 tax 랑 cleaning fee 더하기!? + tax 10% , cleaning fee
         long daysBetween = ChronoUnit.DAYS.between(reservationCreationRequest.checkInDate(), reservationCreationRequest.checkOutDate());
