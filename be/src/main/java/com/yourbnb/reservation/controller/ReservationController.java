@@ -1,9 +1,7 @@
 package com.yourbnb.reservation.controller;
 
 import com.yourbnb.reservation.model.Reservation;
-import com.yourbnb.reservation.model.dto.ReservationCreationRequest;
-import com.yourbnb.reservation.model.dto.ReservationCreationResponse;
-import com.yourbnb.reservation.model.dto.ReservationResponse;
+import com.yourbnb.reservation.model.dto.*;
 import com.yourbnb.reservation.service.ReservationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -53,5 +51,15 @@ public class ReservationController {
         List<ReservationResponse> reservations = reservationService.getReservationsByAccommodationId(accommodationId);
 
         return ResponseEntity.ok(reservations);
+    }
+
+
+    @PatchMapping("/{reservationId}")
+    public ResponseEntity<ReservationUpdateResponse> updateReservation(@PathVariable Long reservationId, @RequestBody ReservationUpdateRequest request) {
+        Reservation updatedReservation = reservationService.updateReservation(reservationId, request);
+
+        ReservationUpdateResponse response = ReservationUpdateResponse.from(updatedReservation);
+
+        return ResponseEntity.ok(response);
     }
 }
