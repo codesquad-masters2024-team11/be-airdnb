@@ -57,8 +57,11 @@ public class ReservationService {
                 .collect(Collectors.toList());
 
     }
-//
-//    public List<ReservationResponse> getReservationsByAccommodationId(Long accommodationId) {
-//        return reservationRepository.findByAccommodationId(accommodationId);
-//    }
+
+
+    public List<ReservationResponse> getReservationsByAccommodationId(Long accommodationId) {
+        return reservationRepository.findByAccommodationId(accommodationId).stream()
+                .map(ReservationResponse::from)
+                .collect(Collectors.toList());
+    }
 }
