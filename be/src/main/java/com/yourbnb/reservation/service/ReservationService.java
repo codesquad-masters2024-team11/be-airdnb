@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -43,14 +44,19 @@ public class ReservationService {
         return reservationRepository.save(reservation);
     }
 
+
     public Optional<ReservationResponse> getReservationById(Long reservationId) {
         return reservationRepository.findById(reservationId)
                 .map(ReservationResponse::from);
     }
 
-//    public List<ReservationResponse> getReservationsByMemberId(String memberId) {
-//        return reservationRepository.findByMemberId(memberId);
-//    }
+
+    public List<ReservationResponse> getReservationsByMemberId(String memberId) {
+        return reservationRepository.findByMember_MemberId(memberId).stream()
+                .map(ReservationResponse::from)
+                .collect(Collectors.toList());
+
+    }
 //
 //    public List<ReservationResponse> getReservationsByAccommodationId(Long accommodationId) {
 //        return reservationRepository.findByAccommodationId(accommodationId);
