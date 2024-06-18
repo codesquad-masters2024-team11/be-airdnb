@@ -8,6 +8,8 @@ import com.yourbnb.accommodation.model.dto.AccommodationCreateDto;
 import com.yourbnb.accommodation.model.dto.AccommodationCreateRequest;
 import com.yourbnb.accommodation.model.dto.AccommodationResponse;
 import com.yourbnb.accommodation.model.dto.AccommodationTypeDto;
+import com.yourbnb.accommodation.model.dto.AccommodationUpdateDto;
+import com.yourbnb.accommodation.model.dto.AccommodationUpdateRequest;
 import com.yourbnb.image.dto.AccommodationImageDto;
 import com.yourbnb.image.model.AccommodationImage;
 import com.yourbnb.member.model.Member;
@@ -66,6 +68,23 @@ public class AccommodationMapper {
                 .build();
     }
 
+    public static AccommodationUpdateDto toAccommodationUpdateDto(AccommodationUpdateRequest request) {
+        return AccommodationUpdateDto.builder()
+                .name(request.getName())
+                .phoneNumber(request.getPhoneNumber())
+                .address(request.getAddress())
+                .longitude(request.getLongitude())
+                .latitude(request.getLatitude())
+                .maxCapacity(request.getMaxCapacity())
+                .cleaningFee(request.getCleaningFee())
+                .price(request.getPrice())
+                .roomType(request.getRoomType())
+                .accommodationTypeId(request.getAccommodationTypeId())
+                .accommodationImageId(request.getAccommodationImageId())
+                .accommodationAmenityIds(request.getAccommodationAmenityIds())
+                .build();
+    }
+
     public static Accommodation toAccommodation(AccommodationCreateDto createDto,
                                                 Member member,
                                                 AccommodationType accommodationType,
@@ -85,5 +104,44 @@ public class AccommodationMapper {
                 .accommodationType(accommodationType)
                 .accommodationImages(accommodationImage)
                 .build();
+    }
+
+    public static Accommodation toNewAccommodation(Accommodation old, AccommodationUpdateDto updateDto,
+                                                   AccommodationType type, AccommodationImage image) {
+        Accommodation.AccommodationBuilder builder = old.toBuilder();
+        if (updateDto.getName() != null) {
+            builder.name(updateDto.getName());
+        }
+        if (updateDto.getPhoneNumber() != null) {
+            builder.phoneNumber(updateDto.getPhoneNumber());
+        }
+        if (updateDto.getAddress() != null) {
+            builder.address(updateDto.getAddress());
+        }
+        if (updateDto.getLongitude() != null) {
+            builder.longitude(updateDto.getLongitude());
+        }
+        if (updateDto.getLatitude() != null) {
+            builder.latitude(updateDto.getLatitude());
+        }
+        if (updateDto.getMaxCapacity() != null) {
+            builder.maxCapacity(updateDto.getMaxCapacity());
+        }
+        if (updateDto.getCleaningFee() != null) {
+            builder.cleaningFee(updateDto.getCleaningFee());
+        }
+        if (updateDto.getPrice() != null) {
+            builder.price(updateDto.getPrice());
+        }
+        if (updateDto.getRoomType() != null) {
+            builder.roomType(updateDto.getRoomType());
+        }
+        if (type != null) {
+            builder.accommodationType(type);
+        }
+        if (image != null) {
+            builder.accommodationImages(image);
+        }
+        return builder.build();
     }
 }

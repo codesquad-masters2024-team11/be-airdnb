@@ -20,12 +20,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Getter
-@Builder
+@Builder(toBuilder = true)
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(force = true, access = AccessLevel.PROTECTED) // JPA 가 사용할 기본 생성자
+@ToString
 public class Accommodation {
 
     @Id
@@ -56,10 +58,9 @@ public class Accommodation {
     @JoinColumn(name = "host_id", referencedColumnName = "member_id")
     private final Member host;
 
-    @OneToMany(mappedBy = "accommodation", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "accommodation", cascade = CascadeType.ALL)
     private final Set<Review> reviews;
 
     @OneToMany(mappedBy = "accommodation", cascade = CascadeType.ALL)
     private final Set<Reservation> reservations;
-
 }
