@@ -20,14 +20,16 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Getter
 @Builder(toBuilder = true)
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(force = true, access = AccessLevel.PROTECTED) // JPA 가 사용할 기본 생성자
-@ToString
+@Where(clause = "is_deleted = false")
+@SQLDelete(sql = "UPDATE accommodation SET is_deleted = true WHERE id = ?")
 public class Accommodation {
 
     @Id
@@ -63,4 +65,6 @@ public class Accommodation {
 
     @OneToMany(mappedBy = "accommodation", cascade = CascadeType.ALL)
     private final Set<Reservation> reservations;
+
+    private final Boolean isDeleted;
 }
