@@ -6,4 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface AccommodationAmenityRepository extends JpaRepository<AccommodationAmenity, Long> {
     Set<AmenityIdMapping> findAllByAccommodations_Id(Long accommodationId);
+
+    void deleteAllByAccommodations_Id(Long accommodationId);
 }
