@@ -103,6 +103,7 @@ public class AccommodationMapper {
                 .host(member)
                 .accommodationType(accommodationType)
                 .accommodationImages(accommodationImage)
+                .isDeleted(Boolean.FALSE)
                 .build();
     }
 
