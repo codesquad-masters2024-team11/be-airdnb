@@ -58,6 +58,7 @@ public class AccommodationAmenityService {
      * @param id 숙소의 ID
      * @return 숙소에 연결된 어매니티들의 ID 리스트
      */
+    @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
     public Set<Long> findAmenityIdsByAccommodationId(Long id) {
         return accommodationAmenityRepository.findAllByAccommodations_Id(id)
                 .stream()
@@ -72,7 +73,21 @@ public class AccommodationAmenityService {
      * @param amenityIds 검색할 어매니티들의 ID 리스트
      * @return 어매니티 엔티티 객체들의 리스트
      */
+    @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
     public Set<Amenity> findAllByIdIsIn(Set<Long> amenityIds) {
         return amenityRepository.findAllByIdIsIn(amenityIds);
+    }
+
+    /**
+     * 숙소의 편의시설을 업데이트한다.
+     *
+     * @param accommodation           어매니티를 업데이트할 숙소 객체
+     * @param accommodationAmenityIds 업데이트할 어매니티 ID 리스트
+     */
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public void updateAccommodationAmenity(Accommodation accommodation, Set<Long> accommodationAmenityIds) {
+        accommodationAmenityRepository.deleteAllByAccommodations_Id(accommodation.getId());
+        List<Amenity> amenities = getAmenitiesByIdOrThrow(accommodationAmenityIds);
+        saveAccommodationAmenity(accommodation, amenities);
     }
 }
