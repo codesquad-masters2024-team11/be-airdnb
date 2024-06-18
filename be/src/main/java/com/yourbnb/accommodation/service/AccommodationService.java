@@ -1,12 +1,15 @@
 package com.yourbnb.accommodation.service;
 
+import com.yourbnb.accommodation.exception.AccommodationNotFoundException;
 import com.yourbnb.accommodation.model.Accommodation;
 import com.yourbnb.accommodation.model.AccommodationType;
 import com.yourbnb.accommodation.model.Amenity;
 import com.yourbnb.accommodation.model.dto.AccommodationCreateDto;
 import com.yourbnb.accommodation.model.dto.AccommodationResponse;
+import com.yourbnb.accommodation.model.dto.AccommodationUpdateDto;
 import com.yourbnb.accommodation.repository.AccommodationRepository;
 import com.yourbnb.accommodation.util.AccommodationMapper;
+import com.yourbnb.global.exception.ResourceAccessDeniedException;
 import com.yourbnb.image.dto.AccommodationImageDto;
 import com.yourbnb.image.model.AccommodationImage;
 import com.yourbnb.image.service.AccommodationImageService;
@@ -67,6 +70,61 @@ public class AccommodationService {
 
         log.info("숙소 생성 성공 - {}", accommodation.getId());
         return mapAccommodationToResponse(accommodation); // 생성된 숙소를 응답 DTO로 매핑하여 반환
+    }
+
+    /**
+     * 호스트의 숙소 중 특정 ID의 숙소를 조회한다.
+     *
+     * @param id     조회할 숙소의 ID
+     * @param hostId 조회를 요청한 호스트의 ID
+     * @return 조회된 숙소 객체
+     * @throws AccommodationNotFoundException 요청한 ID에 해당하는 숙소가 없을 경우
+     * @throws ResourceAccessDeniedException  다른 호스트의 숙소를 수정/삭제하려고 할 경우
+     */
+    @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
+    public Accommodation getAccommodationByIdForHost(Long id, String hostId) {
+        Accommodation accommodation = accommodationRepository.findById(id)
+                .orElseThrow(() -> new AccommodationNotFoundException(id));
+
+        if (!accommodation.getHost().getMemberId().equals(hostId)) {
+            throw new ResourceAccessDeniedException("다른 호스트의 숙소는 수정/삭제할 수 없습니다.");
+        }
+        return accommodation;
+    }
+
+    /**
+     * 숙소 정보를 업데이트한다.
+     *
+     * @param accommodation 업데이트할 기존 숙소 객체
+     * @param updateDto     업데이트할 새로운 정보가 담긴 DTO 객체
+     * @return 업데이트된 숙소 응답 DTO
+     */
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public AccommodationResponse updateAccommodation(Accommodation accommodation, AccommodationUpdateDto updateDto) {
+        AccommodationType type = getAccommodationType(updateDto);
+        AccommodationImage image = getAccommodationImage(updateDto);
+        Accommodation newAccommodation = AccommodationMapper.toNewAccommodation(accommodation, updateDto, type, image);
+        Accommodation updatedAccommodation = accommodationRepository.save(newAccommodation);
+
+        Set<Long> accommodationAmenityIds = updateDto.getAccommodationAmenityIds();
+        if (accommodationAmenityIds != null && !accommodationAmenityIds.isEmpty()) {
+            accommodationAmenityService.updateAccommodationAmenity(updatedAccommodation, accommodationAmenityIds);
+        }
+        return mapAccommodationToResponse(updatedAccommodation);
+    }
+
+    private AccommodationImage getAccommodationImage(AccommodationUpdateDto updateDto) {
+        if (updateDto.getAccommodationImageId() != null) {
+            return imageService.getAccommodationImageByIdOrThrow(updateDto.getAccommodationImageId());
+        }
+        return null;
+    }
+
+    private AccommodationType getAccommodationType(AccommodationUpdateDto updateDto) {
+        if (updateDto.getAccommodationTypeId() != null) {
+            return typeService.getAccommodationTypeByIdOrThrow(updateDto.getAccommodationTypeId());
+        }
+        return null;
     }
 
     private AccommodationResponse mapAccommodationToResponse(Accommodation accommodation) {
