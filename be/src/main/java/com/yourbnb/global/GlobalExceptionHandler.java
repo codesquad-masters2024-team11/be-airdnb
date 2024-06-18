@@ -2,6 +2,7 @@ package com.yourbnb.global;
 
 import com.yourbnb.global.exception.InvalidException;
 import com.yourbnb.global.exception.NotFoundException;
+import com.yourbnb.global.exception.ResourceAccessDeniedException;
 import java.io.IOException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
@@ -38,5 +39,11 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleIOException(IOException e) {
         String errorCode = "FILE_UPLOAD_ERROR";
         return new ErrorResponse(errorCode, e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleResourceAccessDeniedException(ResourceAccessDeniedException e) {
+        return new ErrorResponse(e.getErrorCode(), e.getErrorMsg());
     }
 }
