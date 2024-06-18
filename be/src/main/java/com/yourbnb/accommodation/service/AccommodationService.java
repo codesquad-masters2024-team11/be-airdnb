@@ -113,6 +113,21 @@ public class AccommodationService {
         return mapAccommodationToResponse(updatedAccommodation);
     }
 
+    /**
+     * 주어진 ID에 해당하는 숙소를 삭제한다.
+     *
+     * @param id 삭제할 숙소의 ID
+     * @throws AccommodationNotFoundException 요청한 ID에 해당하는 숙소가 없을 경우
+     */
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public void deleteAccommodation(Long id) {
+        try {
+            accommodationRepository.deleteById(id);
+        } catch (IllegalArgumentException e) {
+            throw new AccommodationNotFoundException(id);
+        }
+    }
+
     private AccommodationImage getAccommodationImage(AccommodationUpdateDto updateDto) {
         if (updateDto.getAccommodationImageId() != null) {
             return imageService.getAccommodationImageByIdOrThrow(updateDto.getAccommodationImageId());
