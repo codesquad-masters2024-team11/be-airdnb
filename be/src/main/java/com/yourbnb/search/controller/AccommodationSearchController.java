@@ -20,7 +20,6 @@ public class AccommodationSearchController {
     @GetMapping("/search")
     @ResponseStatus(HttpStatus.OK)
     public List<AccommodationResponse> getSearchedAccommodations(AccommodationSearchCondition condition) {
-        // TODO: 체크인 체크아웃 날짜 서로 범위 맞는지 확인
         return accommodationService.getSearchedAccommodations(condition);
     }
 }

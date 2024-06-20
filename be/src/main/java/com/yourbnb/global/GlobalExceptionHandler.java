@@ -3,6 +3,7 @@ package com.yourbnb.global;
 import com.yourbnb.global.exception.InvalidException;
 import com.yourbnb.global.exception.NotFoundException;
 import com.yourbnb.global.exception.ResourceAccessDeniedException;
+import com.yourbnb.search.exception.InvalidCheckInCheckOutDateException;
 import java.io.IOException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
@@ -44,6 +45,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ErrorResponse handleResourceAccessDeniedException(ResourceAccessDeniedException e) {
+        return new ErrorResponse(e.getErrorCode(), e.getErrorMsg());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleInvalidCheckInCheckOutDateException(InvalidCheckInCheckOutDateException e) {
         return new ErrorResponse(e.getErrorCode(), e.getErrorMsg());
     }
 }
