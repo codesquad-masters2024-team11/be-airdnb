@@ -16,6 +16,7 @@ import com.yourbnb.image.service.AccommodationImageService;
 import com.yourbnb.image.util.ImageMapper;
 import com.yourbnb.member.model.Member;
 import com.yourbnb.member.service.MemberService;
+import com.yourbnb.search.dto.AccommodationSearchCondition;
 import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
@@ -126,6 +127,19 @@ public class AccommodationService {
         } catch (IllegalArgumentException e) {
             throw new AccommodationNotFoundException(id);
         }
+    }
+
+    /**
+     * 주어진 검색 조건에 따라 숙소를 검색한다.
+     *
+     * @param condition 검색 조건을 담고 있는 객체
+     * @return 검색된 숙소 목록을 AccommodationResponse 객체로 변환한 리스트
+     */
+    @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
+    public List<AccommodationResponse> getSearchedAccommodations(AccommodationSearchCondition condition) {
+        return accommodationRepository.findAccommodationsByCriteria(condition).stream()
+                .map(this::mapAccommodationToResponse)
+                .toList();
     }
 
     private AccommodationImage getAccommodationImage(AccommodationUpdateDto updateDto) {
