@@ -1,0 +1,150 @@
+import React, { useState, useEffect, useRef} from 'react';
+import styled from 'styled-components';
+import SearchBar from '../components/SearchBar';
+import { useNavigate } from 'react-router-dom';
+
+const HeaderWrapper = styled.header`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  padding: ${(props) => (props.shrink ? '10px 20px' : '20px')};
+  background-color: #fff;
+  border-bottom: 1px solid #ddd;
+  z-index: 10;
+  transition: padding 0.3s, height 0.3s; /* height 트랜지션 추가 */
+  height: ${(props) => (props.shrink ? '80px' : '100px')}; /* 초기 높이 설정 */
+`;
+
+const Logo = styled.img`
+  position: absolute;
+  top: 10px;
+  left: 20px;
+  height: 45px;
+`;
+
+const CenteredContainer = styled.div`
+  width: ${(props) => (props.shrink ? '70%' : '100%')};
+  display: flex;
+  justify-content: center;
+  position: relative;
+  top: 0;
+  transition: width 0.3s;
+`;
+
+const RightSection = styled.div`
+  display: flex;
+  align-items: center;
+  position: absolute;
+  top: 10px;
+  right: 20px;
+`;
+
+const HostLink = styled.button`
+  cursor: pointer;
+  background-color: #ff385c;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 16px;
+  margin-right: 20px;
+
+  &:hover {
+    background-color: darkred;
+  }
+`;
+
+const ProfileImage = styled.img`
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+`;
+
+const DropdownMenu = styled.div`
+  position: absolute;
+  top: 60px;
+  right: 0; /* 오른쪽 정렬 */
+  background-color: #fff;
+  padding: 10px;
+  
+  z-index: 50;
+  min-width: 120px; /* 최소 너비 설정 */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* 더 진한 그림자 효과 추가 */
+  border-radius: 8px; /* 둥근 모서리 설정 */
+`;
+
+const DropdownItem = styled.div`
+  cursor: pointer;
+  padding: 8px 16px;
+  transition: background-color 0.3s;
+  text-align: center; /* 텍스트를 오른쪽 정렬 */
+
+  &:hover {
+    background-color: #f9f9f9; /* 호버 시 배경색 변경 */
+  }
+`;
+
+const Header = ({ shrink }) => {
+  const navigate = useNavigate();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if(event.target.alt === 'userProfile') return;
+      setDropdownOpen(false);
+    };
+
+    document.addEventListener('click', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [dropdownOpen]);
+
+  const handleHostLinkClick = () => {
+    navigate('/host');
+  };
+
+  const handleProfileImageClick = (e) => {
+      setDropdownOpen((prev)=>!prev);
+  };
+  const handleHelpClick = () => {
+    navigate('/help');
+    setDropdownOpen(false);
+  };
+
+  const handleLogoutClick = () => {
+    console.log('로그아웃 버튼 클릭');
+    setDropdownOpen(false);
+    navigate('/');
+  };
+
+  return (
+    <HeaderWrapper shrink={shrink} id="header-wrapper">
+      <Logo src="/assets/images/logo.png" alt="Logo" />
+      <CenteredContainer shrink={shrink}>
+        <SearchBar onSearch={() => {}} />
+      </CenteredContainer>
+      <RightSection>
+        <HostLink onClick={handleHostLinkClick}>호스트로 전환하기</HostLink>
+        <ProfileImage
+          src="/assets/images/user-profile.png" // 실제 이미지 경로로 수정
+          alt="userProfile"
+          onClick={handleProfileImageClick}
+        />
+        { dropdownOpen ? 
+        (<DropdownMenu ref={dropdownRef}>
+          <DropdownItem onClick={handleHelpClick}>도움</DropdownItem>
+          <DropdownItem onClick={handleLogoutClick}>로그아웃</DropdownItem>
+        </DropdownMenu>) : (<></>)
+        }
+      </RightSection>
+    </HeaderWrapper>
+  );
+};
+
+export default Header;
