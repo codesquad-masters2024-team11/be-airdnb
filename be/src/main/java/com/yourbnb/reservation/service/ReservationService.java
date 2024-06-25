@@ -41,6 +41,8 @@ public class ReservationService {
         Accommodation accommodation = accommodationRepository.findById(reservationCreationRequest.accommodationId())
                 .orElseThrow(() -> new AccommodationNotFoundException(reservationCreationRequest.accommodationId()));
 
+        validateReservationDates(reservationCreationRequest.checkInDate(), reservationCreationRequest.checkOutDate());
+
         List<Reservation> overlappingReservation = reservationRepository.findOverlappingReservations(
                 reservationCreationRequest.accommodationId(),
                 reservationCreationRequest.checkInDate(),
@@ -111,5 +113,12 @@ public class ReservationService {
     private int calculateTotalPrice(LocalDate checkInDate, LocalDate checkOutDate, Accommodation accommodation) {
         long daysBetween = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
         return (int) (daysBetween * accommodation.getPrice() * TAX + accommodation.getCleaningFee());
+    }
+
+
+    private void validateReservationDates(LocalDate checkInDate, LocalDate checkOutDate) {
+        if (checkInDate.isAfter(checkOutDate) || checkInDate.isEqual(checkOutDate)) {
+            throw new IllegalArgumentException("체크인 날짜는 체크아웃 날짜보다 빨라야 합니다.");
+        }
     }
 }
