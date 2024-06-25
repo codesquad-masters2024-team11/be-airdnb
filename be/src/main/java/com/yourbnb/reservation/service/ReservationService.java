@@ -6,6 +6,7 @@ import com.yourbnb.accommodation.repository.AccommodationRepository;
 import com.yourbnb.member.exception.MemberNotFoundException;
 import com.yourbnb.member.model.Member;
 import com.yourbnb.member.repository.MemberRepository;
+import com.yourbnb.reservation.exception.OverlappingReservationException;
 import com.yourbnb.reservation.exception.ReservationNotFoundException;
 import com.yourbnb.reservation.model.Reservation;
 import com.yourbnb.reservation.model.dto.ReservationCreationRequest;
@@ -39,6 +40,16 @@ public class ReservationService {
 
         Accommodation accommodation = accommodationRepository.findById(reservationCreationRequest.accommodationId())
                 .orElseThrow(() -> new AccommodationNotFoundException(reservationCreationRequest.accommodationId()));
+
+        List<Reservation> overlappingReservation = reservationRepository.findOverlappingReservations(
+                reservationCreationRequest.accommodationId(),
+                reservationCreationRequest.checkInDate(),
+                reservationCreationRequest.checkOutDate()
+        );
+
+        if(!overlappingReservation.isEmpty()){
+            throw new OverlappingReservationException("중복 예약이 발생했습니다.");
+        }
 
         int totalPrice = calculateTotalPrice(reservationCreationRequest.checkInDate(), reservationCreationRequest.checkOutDate(), accommodation);
 
