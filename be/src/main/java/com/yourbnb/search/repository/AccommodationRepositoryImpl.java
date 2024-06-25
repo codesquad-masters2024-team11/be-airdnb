@@ -50,14 +50,8 @@ public class AccommodationRepositoryImpl implements AccommodationRepositoryCusto
         final QReservation qReservation = QReservation.reservation;
         return queryFactory.select(qReservation.accommodation.id)
                 .from(qReservation)
-                .where((qReservation.checkInDate.lt(checkOutDate)) // db 체크인 2023-07-16 < 입력 체크아웃 2023-07-15
-                        .and(qReservation.checkOutDate.gt(checkInDate)) // db 체크아웃 2023-07-20 > 입력 체크인 2023-07-10
+                .where((qReservation.checkInDate.lt(checkOutDate))
+                        .and(qReservation.checkOutDate.gt(checkInDate))
                 );
     }
 }
-
-// db 체크인 (16일) =< 입력 체크인 (16일) &&
-// db 체크아웃(20일) >= 입력 체크아웃(20일)
-
-// or db 체크아웃 (20일) 체크인 날짜가 사이
-// db 체크인 (16일) 입력 체크아웃 (19일) 입력 체크인 (17일)
