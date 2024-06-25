@@ -3,9 +3,13 @@ package com.yourbnb.global;
 import com.yourbnb.global.exception.InvalidException;
 import com.yourbnb.global.exception.NotFoundException;
 import com.yourbnb.global.exception.ResourceAccessDeniedException;
+import com.yourbnb.reservation.exception.OverlappingReservationException;
 import com.yourbnb.search.exception.InvalidCheckInCheckOutDateException;
 import java.io.IOException;
+import java.io.ObjectStreamException;
+
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -52,5 +56,10 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleInvalidCheckInCheckOutDateException(InvalidCheckInCheckOutDateException e) {
         return new ErrorResponse(e.getErrorCode(), e.getErrorMsg());
+    }
+
+    @ExceptionHandler(ObjectStreamException.class)
+    public ResponseEntity<String> handleOverlappingReservationException(OverlappingReservationException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
     }
 }
