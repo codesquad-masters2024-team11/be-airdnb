@@ -49,7 +49,7 @@ public class ReservationService {
                 reservationCreationRequest.checkOutDate()
         );
 
-        if(!overlappingReservation.isEmpty()){
+        if (!overlappingReservation.isEmpty()) {
             throw new OverlappingReservationException("중복 예약이 발생했습니다.");
         }
 
@@ -92,6 +92,19 @@ public class ReservationService {
         Accommodation accommodation = accommodationRepository.findById(reservation.getAccommodation().getId())
                 .orElseThrow(() -> new AccommodationNotFoundException(reservation.getAccommodation().getId()));
 
+        validateReservationDates(reservationUpdateRequest.checkInDate(), reservationUpdateRequest.checkOutDate());
+
+        // 현재 예약을 제외한 겹치는 예약이 있는지 확인!?
+        List<Reservation> overlappingReservations = reservationRepository.findOverlappingReservations(
+                reservation.getAccommodation().getId(),
+                reservationUpdateRequest.checkInDate(),
+                reservationUpdateRequest.checkOutDate()
+        );
+
+        if (!overlappingReservations.isEmpty()) {
+            throw new OverlappingReservationException("중복 예약이 발생했습니다.");
+        }
+
         int totalPrice = calculateTotalPrice(reservationUpdateRequest.checkInDate(), reservationUpdateRequest.checkOutDate(), accommodation);
 
         // 2) 업데이트
@@ -119,6 +132,22 @@ public class ReservationService {
     private void validateReservationDates(LocalDate checkInDate, LocalDate checkOutDate) {
         if (checkInDate.isAfter(checkOutDate) || checkInDate.isEqual(checkOutDate)) {
             throw new IllegalArgumentException("체크인 날짜는 체크아웃 날짜보다 빨라야 합니다.");
+        }
+    }
+
+    // 업데이트 로직에서 현재 수정중인 예약은 겹치는 예약이 확인하는 로직에 포함되면 안됨
+    private void checkForOverlappingReservations(Long accommodationId, LocalDate checkInDate, LocalDate checkOutDate, Long currentReservationId) {
+        List<Reservation> overlappingReservations = reservationRepository.findOverlappingReservations(accommodationId, checkInDate, checkOutDate);
+
+        // 업데이트 로직이면 (업데이트 로직에만 currentReservationId가 존재하니까!) 제외
+        if (currentReservationId != null) {
+            overlappingReservations = overlappingReservations.stream()
+                    .filter(reservation -> !reservation.getId().equals(currentReservationId)) // reservation Id가 currentReservationId 와 같지 않으면 중복 리스트에 추가하기
+                    .collect(Collectors.toList());
+        }
+
+        if (!overlappingReservations.isEmpty()) {
+            throw new OverlappingReservationException("중복 예약이 발생했습니다.");
         }
     }
 }
