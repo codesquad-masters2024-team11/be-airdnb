@@ -43,15 +43,12 @@ public class ReservationService {
 
         validateReservationDates(reservationCreationRequest.checkInDate(), reservationCreationRequest.checkOutDate());
 
-        List<Reservation> overlappingReservation = reservationRepository.findOverlappingReservations(
+        checkForOverlappingReservations(
                 reservationCreationRequest.accommodationId(),
                 reservationCreationRequest.checkInDate(),
-                reservationCreationRequest.checkOutDate()
+                reservationCreationRequest.checkOutDate(),
+                null
         );
-
-        if (!overlappingReservation.isEmpty()) {
-            throw new OverlappingReservationException("중복 예약이 발생했습니다.");
-        }
 
         int totalPrice = calculateTotalPrice(reservationCreationRequest.checkInDate(), reservationCreationRequest.checkOutDate(), accommodation);
 
@@ -94,16 +91,12 @@ public class ReservationService {
 
         validateReservationDates(reservationUpdateRequest.checkInDate(), reservationUpdateRequest.checkOutDate());
 
-        // 현재 예약을 제외한 겹치는 예약이 있는지 확인!?
-        List<Reservation> overlappingReservations = reservationRepository.findOverlappingReservations(
+        checkForOverlappingReservations(
                 reservation.getAccommodation().getId(),
                 reservationUpdateRequest.checkInDate(),
-                reservationUpdateRequest.checkOutDate()
+                reservationUpdateRequest.checkOutDate(),
+                reservationId
         );
-
-        if (!overlappingReservations.isEmpty()) {
-            throw new OverlappingReservationException("중복 예약이 발생했습니다.");
-        }
 
         int totalPrice = calculateTotalPrice(reservationUpdateRequest.checkInDate(), reservationUpdateRequest.checkOutDate(), accommodation);
 
