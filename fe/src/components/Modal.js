@@ -214,7 +214,7 @@ const Modal = ({ isOpen, onClose, accommodation, visitorNumber, checkInDate, che
     }, 100); // 애니메이션 시간과 동일하게 설정
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (formData) => {
     const reservationRequest = {
       checkInDate: checkInDate,
       checkOutDate: checkOutDate,
@@ -240,23 +240,16 @@ const Modal = ({ isOpen, onClose, accommodation, visitorNumber, checkInDate, che
           title: "예약 성공",
           showConfirmButton: false,
           timer: 1500
-        }.then((res) => {
-          if (res.isConfirmed) {
+        }).then((res) => {
+          if (res.isDismissed) { // Swal.fire with timer returns isDismissed instead of isConfirmed
             navigate('/');
           }
-      }));
-        onClose(); 
-      } else {
-        Swal.fire({
-          icon: "error",
-          title: "예약 중 오류가 발생했습니다. 다시 시도해주세요.",
-          showConfirmButton: true
         });
       }
-    } catch (error) {
+    }catch (error) {
       Swal.fire({
         icon: "error",
-        title: "예약 중 오류가 발생했습니다. 다시 시도해주세요.",
+        title: "서버 오류가 발생했습니다.\n다시 시도해주세요.",
         showConfirmButton: true
       });
     }

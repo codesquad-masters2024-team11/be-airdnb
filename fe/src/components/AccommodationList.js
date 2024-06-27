@@ -21,9 +21,6 @@ const AccommodationList = ({ accommodations, visitorNumber, checkInDate, checkOu
       <AccommodationCount>
         지도 표시 지역의 숙소 {accommodations.length}개
       </AccommodationCount>
-      <AccommodationCount>
-        체크인 날짜: {checkInDate}, 체크아웃 날짜: {checkOutDate}, 방문객 수: {visitorNumber}
-      </AccommodationCount>
       <List>
         {accommodations && accommodations.length > 0 ? (
           accommodations.map((accommodation) => (

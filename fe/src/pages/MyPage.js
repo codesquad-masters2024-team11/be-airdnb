@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import SearchBar from '../components/SearchBar';
-import FilterBar from '../components/FilterBar'; // Import FilterBar here
+import LoadingSpinner from '../components/LoadingSpinner'; // LoadingSpinner 컴포넌트 추가
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const HeaderWrapper = styled.header`
@@ -16,43 +15,37 @@ const HeaderWrapper = styled.header`
   border-bottom: 1px solid #ddd;
   z-index: 10;
   transition: padding 0.3s, height 0.3s; /* height 트랜지션 추가 */
-  padding: ${(props) => (props.shrink ? '10px 20px' : '20px')};
-  height: ${(props) => (props.shrink ? '140px' : '160px')}; /* Adjusted height */
+  padding: 20px;
+  height: 50px;
 `;
 
 const TopSection = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
 `;
 
 const Logo = styled.img`
   position: absolute;
-  top: 10px;
-  left: 20px;
+  top: 15px;
+  left: 40px;
   height: 45px;
   cursor: pointer;
   pointer-events: auto; /* Enable pointer events */
   z-index: 20; /* Ensure logo is above other elements */
 `;
 
-const CenteredContainer = styled.div`
-  width: ${(props) => (props.shrink ? '70%' : '100%')};
-  display: flex;
-  justify-content: center;
-  position: relative;
-  top: 0;
-  transition: width 0.3s;
-  z-index: 10; /* Ensure SearchBar is below the logo */
-`;
 
 const RightSection = styled.div`
   display: flex;
   align-items: center;
   position: absolute;
-  top: 10px;
-  right: 20px;
+  top: 15px;
+  right: 40px;
   z-index: 20; /* Ensure logo is a
 `;
 
@@ -100,7 +93,57 @@ const DropdownItem = styled.div`
   }
 `;
 
-const Header = ({ shrink }) => {
+const Container = styled.div`
+  margin-top: 30px;
+  padding: 20px;
+`;
+
+const Topic = styled.div`
+  font-size: 36px;
+  font-weight: bold;
+  margin-bottom: 20px;
+`;
+
+const ReservationList = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+`;
+
+const ReservationCard = styled.div`
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  overflow: hidden;
+  transition: transform 0.2s ease-in-out; /* Add a transition for smooth scaling */
+  &:hover {
+    transform: scale(1.05); /* Scale up to 105% on hover */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Add a subtle shadow on hover */
+  }
+`;
+
+const ReservationImage = styled.img`
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+`;
+
+const ReservationDetails = styled.div`
+  padding: 16px;
+    font-weight: bold;
+`;
+
+const ReservationDetail = styled.p`
+  margin: 10px 0;
+    font-weight: bold;
+`;
+
+const MyPage = () => {
+  const [reservations, setReservations] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -146,13 +189,39 @@ const Header = ({ shrink }) => {
     navigate('/');
   };
 
+  useEffect(() => {
+    const fetchReservations = async () => {
+      try {
+        const response = await fetch(`http://localhost:8080/api/reservation/member/Zzawang`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch reservations');
+        }
+        const data = await response.json();
+        const reservationList = Object.keys(data).map(key => data[key]);
+
+        // Simulate a delay to show the loading spinner
+        setTimeout(() => {
+          setReservations(reservationList);
+          setLoading(false);
+        }, 1000);
+      } catch (error) {
+        console.error('Error fetching reservations:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchReservations();
+  }, []);
+
+  if (loading) {
+    return <LoadingSpinner isLoading={loading} />;
+  }
+
   return (
-    <HeaderWrapper shrink={shrink}>
+    <div>
+    <HeaderWrapper>
       <TopSection>
         <Logo src="/assets/images/logo.png" alt="Logo" onClick={handleLogoClick} />
-        <CenteredContainer shrink={shrink}>
-          <SearchBar onSearch={() => {}} />
-        </CenteredContainer>
         <RightSection>
           <HostLink onClick={handleHostLinkClick}>호스트로 전환하기</HostLink>
           <ProfileImage
@@ -169,9 +238,25 @@ const Header = ({ shrink }) => {
           )}
         </RightSection>
       </TopSection>
-      <FilterBar />
     </HeaderWrapper>
+    <Container>
+      <Topic>짜왕님의 예약 현황</Topic>
+      <ReservationList>
+        {reservations.map((reservation, index) => (
+          <ReservationCard key={reservation.id}>
+            <ReservationImage src={`/assets/images/${(index+1)%11}.jpg`} />
+            <ReservationDetails>
+              <ReservationDetail>❤️‍🔥 체크인 날짜 : {reservation.checkInDate}</ReservationDetail>
+              <ReservationDetail>💔 체크아웃 날짜 : {reservation.checkOutDate}</ReservationDetail>
+              <ReservationDetail>👨🏻‍🦲 방문 인원 : {reservation.visitorNumber}</ReservationDetail>
+              <ReservationDetail>💰 총 가격 : ₩{reservation.totalPrice.toLocaleString()}</ReservationDetail>
+            </ReservationDetails>
+          </ReservationCard>
+        ))}
+      </ReservationList>
+    </Container>
+    </div>
   );
 };
 
-export default Header;
+export default MyPage;
