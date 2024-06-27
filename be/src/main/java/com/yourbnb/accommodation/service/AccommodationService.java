@@ -17,6 +17,7 @@ import com.yourbnb.image.util.ImageMapper;
 import com.yourbnb.member.model.Member;
 import com.yourbnb.member.service.MemberService;
 import com.yourbnb.search.dto.AccommodationSearchCondition;
+import com.yourbnb.search.dto.Coordinate;
 import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
@@ -140,6 +141,30 @@ public class AccommodationService {
         return accommodationRepository.findAccommodationsByCriteria(condition).stream()
                 .map(this::mapAccommodationToResponse)
                 .toList();
+    }
+
+    /**
+     * 결과의 중심 좌표를 구한다.
+     * @param searchedAccommodations 검색된 숙소 객체들
+     * @return 중심 좌표
+     */
+    public Coordinate getCoordinate(List<AccommodationResponse> searchedAccommodations) {
+        if (searchedAccommodations == null || searchedAccommodations.isEmpty()) {
+            return new Coordinate(37.27538, 127.05488);
+        }
+
+        double totalLatitude = 0;
+        double totalLongitude = 0;
+
+        for (AccommodationResponse accommodation : searchedAccommodations) {
+            totalLatitude += Double.parseDouble(accommodation.getLatitude());
+            totalLongitude += Double.parseDouble(accommodation.getLongitude());
+        }
+
+        double averageLatitude = totalLatitude / searchedAccommodations.size();
+        double averageLongitude = totalLongitude / searchedAccommodations.size();
+
+        return new Coordinate(averageLatitude, averageLongitude);
     }
 
     private AccommodationImage getAccommodationImage(AccommodationUpdateDto updateDto) {

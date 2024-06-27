@@ -3,6 +3,8 @@ package com.yourbnb.search.controller;
 import com.yourbnb.accommodation.model.dto.AccommodationResponse;
 import com.yourbnb.accommodation.service.AccommodationService;
 import com.yourbnb.search.dto.AccommodationSearchCondition;
+import com.yourbnb.search.dto.AccommodationSearchResponse;
+import com.yourbnb.search.dto.Coordinate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,7 +21,9 @@ public class AccommodationSearchController {
 
     @GetMapping("/search")
     @ResponseStatus(HttpStatus.OK)
-    public List<AccommodationResponse> getSearchedAccommodations(AccommodationSearchCondition condition) {
-        return accommodationService.getSearchedAccommodations(condition);
+    public AccommodationSearchResponse getSearchedAccommodations(AccommodationSearchCondition condition) {
+        List<AccommodationResponse> searchedAccommodations = accommodationService.getSearchedAccommodations(condition);
+        Coordinate coordinate = accommodationService.getCoordinate(searchedAccommodations);
+        return new AccommodationSearchResponse(coordinate, searchedAccommodations);
     }
 }
