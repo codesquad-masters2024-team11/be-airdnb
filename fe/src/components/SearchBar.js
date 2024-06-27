@@ -95,14 +95,12 @@ const SearchBar = ({ onSearch }) => {
     const url = `http://localhost:8080/api/accommodations/search?${query}`;
 
     try {
-      console.log('Fetching URL:', url);
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error('Failed to fetch');
       }
       const results = await response.json();
-      console.log('Search results:', results);
-      navigate('/search', { state: { accommodations: results } });
+      navigate('/search', { state: { accommodations: results.accommodations, coordinate: results.coordinate, visitorNumber: guests.adults + guests.children + guests.infants, checkInDate: formatDate(checkIn), checkOutDate: formatDate(checkOut)}});
     } catch (error) {
       console.error('Error fetching search results:', error);
     } finally {

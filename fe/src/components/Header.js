@@ -1,7 +1,16 @@
-import React, { useState, useEffect, useRef} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import Typewriter from 'typewriter-effect';
 import styled from 'styled-components';
 import SearchBar from '../components/SearchBar';
+import FilterBar from '../components/FilterBar'; // Import FilterBar here
 import { useNavigate } from 'react-router-dom';
+
+<Typewriter
+  options={{
+    autoStart: true,
+    loop: true,
+  }}
+/>
 
 const HeaderWrapper = styled.header`
   position: fixed;
@@ -9,13 +18,21 @@ const HeaderWrapper = styled.header`
   left: 0;
   right: 0;
   display: flex;
+  flex-direction: column; // Make sure elements are stacked vertically
   justify-content: center;
-  padding: ${(props) => (props.shrink ? '10px 20px' : '20px')};
   background-color: #fff;
   border-bottom: 1px solid #ddd;
   z-index: 10;
   transition: padding 0.3s, height 0.3s; /* height 트랜지션 추가 */
-  height: ${(props) => (props.shrink ? '80px' : '100px')}; /* 초기 높이 설정 */
+  padding: ${(props) => (props.shrink ? '10px 20px' : '20px')};
+  height: ${(props) => (props.shrink ? '140px' : '160px')}; /* Adjusted height */
+`;
+
+const TopSection = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
 `;
 
 const Logo = styled.img`
@@ -23,6 +40,9 @@ const Logo = styled.img`
   top: 10px;
   left: 20px;
   height: 45px;
+  cursor: pointer;
+  pointer-events: auto; /* Enable pointer events */
+  z-index: 20; /* Ensure logo is above other elements */
 `;
 
 const CenteredContainer = styled.div`
@@ -32,6 +52,7 @@ const CenteredContainer = styled.div`
   position: relative;
   top: 0;
   transition: width 0.3s;
+  z-index: 10; /* Ensure SearchBar is below the logo */
 `;
 
 const RightSection = styled.div`
@@ -40,6 +61,7 @@ const RightSection = styled.div`
   position: absolute;
   top: 10px;
   right: 20px;
+  z-index: 20; /* Ensure logo is a
 `;
 
 const HostLink = styled.button`
@@ -69,7 +91,6 @@ const DropdownMenu = styled.div`
   right: 0; /* 오른쪽 정렬 */
   background-color: #fff;
   padding: 10px;
-  
   z-index: 50;
   min-width: 120px; /* 최소 너비 설정 */
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* 더 진한 그림자 효과 추가 */
@@ -109,9 +130,14 @@ const Header = ({ shrink }) => {
     navigate('/host');
   };
 
-  const handleProfileImageClick = (e) => {
-      setDropdownOpen((prev)=>!prev);
+  const handleProfileImageClick = () => {
+    setDropdownOpen((prev) => !prev);
   };
+
+  const handleLogoClick = () => {
+    navigate('/');
+  };
+
   const handleHelpClick = () => {
     navigate('/help');
     setDropdownOpen(false);
@@ -124,25 +150,28 @@ const Header = ({ shrink }) => {
   };
 
   return (
-    <HeaderWrapper shrink={shrink} id="header-wrapper">
-      <Logo src="/assets/images/logo.png" alt="Logo" />
-      <CenteredContainer shrink={shrink}>
-        <SearchBar onSearch={() => {}} />
-      </CenteredContainer>
-      <RightSection>
-        <HostLink onClick={handleHostLinkClick}>호스트로 전환하기</HostLink>
-        <ProfileImage
-          src="/assets/images/user-profile.png" // 실제 이미지 경로로 수정
-          alt="userProfile"
-          onClick={handleProfileImageClick}
-        />
-        { dropdownOpen ? 
-        (<DropdownMenu ref={dropdownRef}>
-          <DropdownItem onClick={handleHelpClick}>도움</DropdownItem>
-          <DropdownItem onClick={handleLogoutClick}>로그아웃</DropdownItem>
-        </DropdownMenu>) : (<></>)
-        }
-      </RightSection>
+    <HeaderWrapper shrink={shrink}>
+      <TopSection>
+        <Logo src="/assets/images/logo.png" alt="Logo" onClick={handleLogoClick} />
+        <CenteredContainer shrink={shrink}>
+          <SearchBar onSearch={() => {}} />
+        </CenteredContainer>
+        <RightSection>
+          <HostLink onClick={handleHostLinkClick}>호스트로 전환하기</HostLink>
+          <ProfileImage
+            src="/assets/images/user-profile.png"
+            alt="userProfile"
+            onClick={handleProfileImageClick}
+          />
+          {dropdownOpen && (
+            <DropdownMenu ref={dropdownRef}>
+              <DropdownItem onClick={handleHelpClick}>도움</DropdownItem>
+              <DropdownItem onClick={handleLogoutClick}>로그아웃</DropdownItem>
+            </DropdownMenu>
+          )}
+        </RightSection>
+      </TopSection>
+      <FilterBar />
     </HeaderWrapper>
   );
 };
