@@ -51,6 +51,10 @@ public class AccommodationService {
         return accommodationResponses;
     }
 
+    public AccommodationResponse getAccommodation(Long accommodationId) {
+        return mapAccommodationToResponse(accommodationRepository.findById(accommodationId).get());
+    }
+
     /**
      * 숙소를 데이터베이스에 저장한다.
      *

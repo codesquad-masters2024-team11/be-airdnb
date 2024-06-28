@@ -13,13 +13,15 @@ public class ReservationResponse {
     private LocalDate checkOutDate;
     private Integer visitorNumber;
     private Integer totalPrice;
+    private Long accommodationId;
 
-    private ReservationResponse(Long id, LocalDate checkInDate, LocalDate checkOutDate, Integer visitorNumber, Integer totalPrice) {
+    private ReservationResponse(Long id, LocalDate checkInDate, LocalDate checkOutDate, Integer visitorNumber, Integer totalPrice, Long accommodationId) {
         this.id = id;
         this.checkInDate = checkInDate;
         this.checkOutDate = checkOutDate;
         this.visitorNumber = visitorNumber;
         this.totalPrice = totalPrice;
+        this.accommodationId = accommodationId;
     }
 
     public static ReservationResponse from (Reservation reservation) {
@@ -28,7 +30,8 @@ public class ReservationResponse {
                 reservation.getCheckInDate(),
                 reservation.getCheckOutDate(),
                 reservation.getVisitorNumber(),
-                reservation.getTotalPrice()
+                reservation.getTotalPrice(),
+                reservation.getAccommodation().getId()
         );
     }
 }

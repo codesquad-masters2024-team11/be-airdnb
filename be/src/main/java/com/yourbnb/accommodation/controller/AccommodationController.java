@@ -37,6 +37,12 @@ public class AccommodationController {
         return accommodationService.getAccommodations();
     }
 
+    @GetMapping("/{accommodationId}")
+    @ResponseStatus(HttpStatus.OK)
+    public AccommodationResponse getAccommodation(@PathVariable Long accommodationId) {
+        return accommodationService.getAccommodation(accommodationId);
+    }
+
     @PostMapping
     public ResponseEntity<AccommodationResponse> createAccommodations(
             @Valid @RequestBody AccommodationCreateRequest request) {
