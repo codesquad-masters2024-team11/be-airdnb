@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import LoadingSpinner from '../components/LoadingSpinner'; // LoadingSpinner 컴포넌트 추가
+import LoadingSpinner from '../components/LoadingSpinner';
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -9,12 +9,12 @@ const HeaderWrapper = styled.header`
   left: 0;
   right: 0;
   display: flex;
-  flex-direction: column; // Make sure elements are stacked vertically
+  flex-direction: column;
   justify-content: center;
   background-color: #fff;
   border-bottom: 1px solid #ddd;
   z-index: 10;
-  transition: padding 0.3s, height 0.3s; /* height 트랜지션 추가 */
+  transition: padding 0.3s, height 0.3s;
   padding: 20px;
   height: 50px;
 `;
@@ -35,10 +35,9 @@ const Logo = styled.img`
   left: 40px;
   height: 45px;
   cursor: pointer;
-  pointer-events: auto; /* Enable pointer events */
-  z-index: 20; /* Ensure logo is above other elements */
+  pointer-events: auto;
+  z-index: 20;
 `;
-
 
 const RightSection = styled.div`
   display: flex;
@@ -46,7 +45,7 @@ const RightSection = styled.div`
   position: absolute;
   top: 15px;
   right: 40px;
-  z-index: 20; /* Ensure logo is a
+  z-index: 20;
 `;
 
 const HostLink = styled.button`
@@ -73,23 +72,23 @@ const ProfileImage = styled.img`
 const DropdownMenu = styled.div`
   position: absolute;
   top: 60px;
-  right: 0; /* 오른쪽 정렬 */
+  right: 0;
   background-color: #fff;
   padding: 10px;
   z-index: 50;
-  min-width: 120px; /* 최소 너비 설정 */
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* 더 진한 그림자 효과 추가 */
-  border-radius: 8px; /* 둥근 모서리 설정 */
+  min-width: 120px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
 `;
 
 const DropdownItem = styled.div`
   cursor: pointer;
   padding: 8px 16px;
   transition: background-color 0.3s;
-  text-align: center; /* 텍스트를 오른쪽 정렬 */
+  text-align: center;
 
   &:hover {
-    background-color: #f9f9f9; /* 호버 시 배경색 변경 */
+    background-color: #f9f9f9;
   }
 `;
 
@@ -99,6 +98,7 @@ const Container = styled.div`
 `;
 
 const Topic = styled.div`
+  margin-top: 60px;
   font-size: 36px;
   font-weight: bold;
   margin-bottom: 20px;
@@ -115,10 +115,10 @@ const ReservationCard = styled.div`
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   background-color: #ffffff;
   overflow: hidden;
-  transition: transform 0.2s ease-in-out; /* Add a transition for smooth scaling */
+  transition: transform 0.2s ease-in-out;
   &:hover {
-    transform: scale(1.05); /* Scale up to 105% on hover */
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Add a subtle shadow on hover */
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
   }
 `;
 
@@ -132,12 +132,12 @@ const ReservationImage = styled.img`
 
 const ReservationDetails = styled.div`
   padding: 16px;
-    font-weight: bold;
+  font-weight: bold;
 `;
 
 const ReservationDetail = styled.p`
   margin: 10px 0;
-    font-weight: bold;
+  font-weight: bold;
 `;
 
 const MyPage = () => {
@@ -150,7 +150,7 @@ const MyPage = () => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if(event.target.alt === 'userProfile') return;
+      if (event.target.alt === 'userProfile') return;
       setDropdownOpen(false);
     };
 
@@ -199,9 +199,19 @@ const MyPage = () => {
         const data = await response.json();
         const reservationList = Object.keys(data).map(key => data[key]);
 
-        // Simulate a delay to show the loading spinner
+        const accommodationPromises = reservationList.map(async (reservation) => {
+          const accommodationResponse = await fetch(`http://localhost:8080/api/accommodations/${reservation.accommodationId}`);
+          if (!accommodationResponse.ok) {
+            throw new Error('Failed to fetch accommodation details');
+          }
+          const accommodationDetails = await accommodationResponse.json();
+          return { ...reservation, accommodation: accommodationDetails };
+        });
+
+        const reservationsWithDetails = await Promise.all(accommodationPromises);
+
         setTimeout(() => {
-          setReservations(reservationList);
+          setReservations(reservationsWithDetails);
           setLoading(false);
         }, 1000);
       } catch (error) {
@@ -219,42 +229,44 @@ const MyPage = () => {
 
   return (
     <div>
-    <HeaderWrapper>
-      <TopSection>
-        <Logo src="/assets/images/logo.png" alt="Logo" onClick={handleLogoClick} />
-        <RightSection>
-          <HostLink onClick={handleHostLinkClick}>호스트로 전환하기</HostLink>
-          <ProfileImage
-            src="/assets/images/user-profile.png"
-            alt="userProfile"
-            onClick={handleProfileImageClick}
-          />
-          {dropdownOpen && (
-            <DropdownMenu ref={dropdownRef}>
-              <DropdownItem onClick={handleMyPageClick}>마이페이지</DropdownItem>
-              <DropdownItem onClick={handleHelpClick}>도움</DropdownItem>
-              <DropdownItem onClick={handleLogoutClick}>로그아웃</DropdownItem>
-            </DropdownMenu>
-          )}
-        </RightSection>
-      </TopSection>
-    </HeaderWrapper>
-    <Container>
-      <Topic>짜왕님의 예약 현황</Topic>
-      <ReservationList>
-        {reservations.map((reservation, index) => (
-          <ReservationCard key={reservation.id}>
-            <ReservationImage src={`/assets/images/${(index+1)%11}.jpg`} />
-            <ReservationDetails>
-              <ReservationDetail>❤️‍🔥 체크인 날짜 : {reservation.checkInDate}</ReservationDetail>
-              <ReservationDetail>💔 체크아웃 날짜 : {reservation.checkOutDate}</ReservationDetail>
-              <ReservationDetail>👨🏻‍🦲 방문 인원 : {reservation.visitorNumber}</ReservationDetail>
-              <ReservationDetail>💰 총 가격 : ₩{reservation.totalPrice.toLocaleString()}</ReservationDetail>
-            </ReservationDetails>
-          </ReservationCard>
-        ))}
-      </ReservationList>
-    </Container>
+      <HeaderWrapper>
+        <TopSection>
+          <Logo src="/assets/images/logo.png" alt="Logo" onClick={handleLogoClick} />
+          <RightSection>
+            <HostLink onClick={handleHostLinkClick}>호스트로 전환하기</HostLink>
+            <ProfileImage
+              src="/assets/images/user-profile.png"
+              alt="userProfile"
+              onClick={handleProfileImageClick}
+            />
+            {dropdownOpen && (
+              <DropdownMenu ref={dropdownRef}>
+                <DropdownItem onClick={handleMyPageClick}>마이페이지</DropdownItem>
+                <DropdownItem onClick={handleHelpClick}>도움</DropdownItem>
+                <DropdownItem onClick={handleLogoutClick}>로그아웃</DropdownItem>
+              </DropdownMenu>
+            )}
+          </RightSection>
+        </TopSection>
+      </HeaderWrapper>
+      <Container>
+        <Topic>짜왕님의 예약 현황</Topic>
+        <ReservationList>
+          {reservations.map((reservation) => (
+            <ReservationCard key={reservation.id}>
+              <ReservationImage src={reservation.accommodation?.accommodationImage?.imageUrl} alt={reservation.accommodation.name} />
+              <ReservationDetails>
+                <h2>{reservation.accommodation.name}</h2>
+                <br/>
+                <ReservationDetail>❤️‍🔥 체크인 날짜: {reservation.checkInDate}</ReservationDetail>
+                <ReservationDetail>💔 체크아웃 날짜: {reservation.checkOutDate}</ReservationDetail>
+                <ReservationDetail>👨🏻‍🦲 방문 인원: {reservation.visitorNumber}</ReservationDetail>
+                <ReservationDetail>💰 총 가격: ₩{reservation.totalPrice.toLocaleString()}</ReservationDetail>
+              </ReservationDetails>
+            </ReservationCard>
+          ))}
+        </ReservationList>
+      </Container>
     </div>
   );
 };
